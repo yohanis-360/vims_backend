@@ -1,0 +1,766 @@
+{
+	"info": {
+		"_postman_id": "vims-backend-api",
+		"name": "VIMS Backend API",
+		"description": "Complete API collection for Vehicle Inspection Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "refresh_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "inspection_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Inspector Login (with Machine ID)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+									"    console.log(\"Access token saved:\", jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"inspector001\",\n    \"password\": \"your_password\",\n    \"machineId\": \"M-001B44AC5678\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "login", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Machine",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"macAddress\": \"00:1B:44:AC:56:78\",\n    \"certificateSerial\": \"CERT-2025-001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/machine/verify/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "machine", "verify", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Machine Handshake",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"machineId\": \"M-001B44AC5678\",\n    \"macAddress\": \"00:1B:44:AC:56:78\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/machine/handshake/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "machine", "handshake", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login (Get JWT Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"    pm.collectionVariables.set(\"refresh_token\", jsonData.refresh);",
+									"    console.log(\"Access token saved:\", jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"admin\",\n    \"password\": \"your_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/token/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "token", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"access_token\", jsonData.access);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"{{refresh_token}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/token/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "token", "refresh", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Health Checks",
+			"item": [
+				{
+					"name": "Basic Health Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/",
+							"host": ["{{base_url}}"],
+							"path": ["health", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Readiness Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/ready/",
+							"host": ["{{base_url}}"],
+							"path": ["health", "ready", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Liveness Check",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health/live/",
+							"host": ["{{base_url}}"],
+							"path": ["health", "live", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Inspections",
+			"item": [
+				{
+					"name": "List Inspections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/?page=1&page_size=50",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", ""],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "page_size",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create Inspection",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    pm.collectionVariables.set(\"inspection_id\", jsonData.inspection_id);",
+									"    console.log(\"Inspection ID saved:\", jsonData.inspection_id);",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"inspection_id\": \"VIMS-LV-2025-TEST1\",\n    \"plate_number\": \"AA-12345\",\n    \"chassis_number\": \"WBADT43452G123456\",\n    \"engine_number\": \"N47D20A12345\",\n    \"vehicle_type\": \"Passenger Car\",\n    \"vehicle_category\": \"LIGHT\",\n    \"brand_model\": \"Toyota Camry\",\n    \"fuel_type\": \"Petrol\",\n    \"kilometer_reading\": 125480,\n    \"licensed_capacity\": 5,\n    \"title_certificate\": \"TC-2024-001234\",\n    \"owner_name\": \"John Doe\",\n    \"center\": \"CTR-AA-001\",\n    \"form_id\": \"LV-FORM-2025\",\n    \"test_start_time\": \"2025-01-15T10:30:00Z\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Inspection Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Visual Checklist (30-Point)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"item_number\": 1,\n            \"item_name_en\": \"Registration Plate Validity\",\n            \"item_name_am\": \"የሰሌዳ ቁጥር ትክክለኛነት\",\n            \"zone_id\": \"zone1\",\n            \"zone_name_en\": \"Identification & Documentation\",\n            \"points_possible\": 5,\n            \"status\": \"PASS\",\n            \"defect_type\": \"\",\n            \"is_critical\": false,\n            \"is_mandatory\": false\n        },\n        {\n            \"item_number\": 2,\n            \"item_name_en\": \"Chassis Number Match\",\n            \"item_name_am\": \"የቻሲስ ቁጥር ማዛመድ\",\n            \"zone_id\": \"zone1\",\n            \"zone_name_en\": \"Identification & Documentation\",\n            \"points_possible\": 5,\n            \"status\": \"PASS\",\n            \"defect_type\": \"\",\n            \"is_critical\": true,\n            \"is_mandatory\": false\n        }\n    ],\n    \"notes\": \"All items checked and verified\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/submit_visual_checklist/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "submit_visual_checklist", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Submit Machine Tests (RYME Data)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tests\": [\n        {\n            \"machine_test_id\": \"MT-2025-TEST1-1\",\n            \"test_type\": \"alignment\",\n            \"test_name\": \"Wheel Alignment & Suspension\",\n            \"test_data\": {\n                \"alignment_deviation\": 2.5,\n                \"suspension_left\": 55.2,\n                \"suspension_right\": 58.1,\n                \"suspension_diff\": 2.9\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-AL-001\"\n        },\n        {\n            \"machine_test_id\": \"MT-2025-TEST1-2\",\n            \"test_type\": \"service_brake\",\n            \"test_name\": \"Service Brake Test\",\n            \"test_data\": {\n                \"front_left\": 2850.5,\n                \"front_right\": 2920.3,\n                \"rear_left\": 3100.2,\n                \"rear_right\": 3050.8,\n                \"total_force\": 11921.8,\n                \"front_balance\": 2.4,\n                \"rear_balance\": 1.6\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-BR-002\"\n        },\n        {\n            \"machine_test_id\": \"MT-2025-TEST1-3\",\n            \"test_type\": \"parking_brake\",\n            \"test_name\": \"Parking Brake Test\",\n            \"test_data\": {\n                \"rear_left\": 1850.5,\n                \"rear_right\": 1920.3,\n                \"total_force\": 3770.8,\n                \"balance\": 3.7\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-BR-002\"\n        },\n        {\n            \"machine_test_id\": \"MT-2025-TEST1-4\",\n            \"test_type\": \"gas_analyzer\",\n            \"test_name\": \"Gas Analyzer (Petrol)\",\n            \"test_data\": {\n                \"HC\": 120,\n                \"CO\": 0.35,\n                \"CO2\": 13.5,\n                \"O2\": 1.2,\n                \"lambda\": 1.01\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-GA-003\"\n        },\n        {\n            \"machine_test_id\": \"MT-2025-TEST1-5\",\n            \"test_type\": \"headlight\",\n            \"test_name\": \"Headlight Test\",\n            \"test_data\": {\n                \"left_intensity\": 15000,\n                \"left_aim_h\": 2.5,\n                \"left_aim_v\": -1.2,\n                \"right_intensity\": 15200,\n                \"right_aim_h\": 2.3,\n                \"right_aim_v\": -1.1\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-HL-004\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/submit_machine_tests/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "submit_machine_tests", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Photo (GPS Stamped)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"photo_id\": \"PHOTO-2025-TEST1-001\",\n    \"purpose\": \"registration\",\n    \"photo_url\": \"s3://vims-photos/2025/01/15/PHOTO-2025-TEST1-001.jpg\",\n    \"latitude\": 9.012345,\n    \"longitude\": 38.765432,\n    \"gps_accuracy\": 10.5,\n    \"timestamp\": \"2025-01-15T10:30:00Z\",\n    \"file_size\": 1024000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/upload_photo/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "upload_photo", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Validate Geofence",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/validate_geofence/?lat=9.012345&lng=38.765432",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "validate_geofence", ""],
+							"query": [
+								{
+									"key": "lat",
+									"value": "9.012345"
+								},
+								{
+									"key": "lng",
+									"value": "38.765432"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Finalize Inspection (Payment)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_transaction_id\": \"TXN-2025-001234\",\n    \"payment_amount\": 250.00\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/finalize/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "finalize", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Statistics (Dashboard)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/statistics/?range=today",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "statistics", ""],
+							"query": [
+								{
+									"key": "range",
+									"value": "today",
+									"description": "today | week | month"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Active Inspections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/active/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "active", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Completed Inspections",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/completed/?days=7",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "completed", ""],
+							"query": [
+								{
+									"key": "days",
+									"value": "7",
+									"description": "Number of days to look back"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Search Vehicle History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/vehicle-history/?plate=AA-12345",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "vehicle-history", ""],
+							"query": [
+								{
+									"key": "plate",
+									"value": "AA-12345"
+								},
+								{
+									"key": "chassis",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "engine",
+									"value": "",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Sync Status",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sync_status\": \"synced\",\n    \"sync_error\": \"\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/sync-status/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "sync-status", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Process Payment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_method\": \"cash\",\n    \"amount\": 250.00,\n    \"transaction_id\": \"TXN-2025-001234\",\n    \"reference\": \"Inspector payment\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/process-payment/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "process-payment", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Machine Tests (Read-Only)",
+			"item": [
+				{
+					"name": "List Machine Tests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/machine-tests/?inspection_id={{inspection_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "machine-tests", ""],
+							"query": [
+								{
+									"key": "inspection_id",
+									"value": "{{inspection_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Machine Test Detail",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/machine-tests/MT-2025-TEST1-1/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "machine-tests", "MT-2025-TEST1-1", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filter by Test Type",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/machine-tests/?test_type=alignment",
+							"host": ["{{base_url}}"],
+							"path": ["api", "machine-tests", ""],
+							"query": [
+								{
+									"key": "test_type",
+									"value": "alignment"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Visual Checklist (Read-Only)",
+			"item": [
+				{
+					"name": "List Visual Items",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/visual-checklist/?inspection_id={{inspection_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "visual-checklist", ""],
+							"query": [
+								{
+									"key": "inspection_id",
+									"value": "{{inspection_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Photos",
+			"item": [
+				{
+					"name": "List Photos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/photos/?inspection_id={{inspection_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "photos", ""],
+							"query": [
+								{
+									"key": "inspection_id",
+									"value": "{{inspection_id}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Filter by Purpose",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/photos/?purpose=registration",
+							"host": ["{{base_url}}"],
+							"path": ["api", "photos", ""],
+							"query": [
+								{
+									"key": "purpose",
+									"value": "registration"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "List Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Current User Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/users/me/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "me", ""]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"old_password\": \"current_password\",\n    \"new_password\": \"new_secure_password\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/users/change_password/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "users", "change_password", ""]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
+
+
+
+

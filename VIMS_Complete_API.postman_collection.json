@@ -1,0 +1,383 @@
+{
+	"info": {
+		"_postman_id": "vims-complete-api",
+		"name": "VIMS Complete API - Inspector & Admin Portal",
+		"description": "Complete API endpoints for both Inspector Client and Admin Portal",
+		"schema": "https://schema.getpostman.com/json/collection.v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "access_token",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "inspection_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "ADMIN PORTAL - Viewing & Reporting",
+			"item": [
+				{
+					"name": "Admin Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"access_token\", jsonData.access);",
+									"pm.environment.set(\"refresh_token\", jsonData.refresh);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"superadmin\",\n    \"password\": \"admin123\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Inspections List",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/?limit=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", ""],
+							"query": [
+								{
+									"key": "limit",
+									"value": "20"
+								},
+								{
+									"key": "status",
+									"value": "completed",
+									"disabled": true
+								},
+								{
+									"key": "plate_number",
+									"value": "AA",
+									"disabled": true
+								}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Inspection Detail",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"inspection_id\", jsonData.inspection_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Machine Results (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/machine-results/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "machine-results", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Visual Results (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/visual-results/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "visual-results", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Photos (Admin)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/photos/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "photos", ""]
+						}
+					}
+				},
+				{
+					"name": "Get Dashboard Statistics",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/inspections/statistics/?range=today",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "statistics", ""],
+							"query": [
+								{
+									"key": "range",
+									"value": "today",
+									"description": "today|week|month"
+								}
+							]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "INSPECTOR CLIENT - Inspection Workflow",
+			"item": [
+				{
+					"name": "Machine Verification",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"mac_address\": \"00:1B:44:11:22:33\",\n    \"certificate_serial\": \"CERT-VIMS-001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/machine/verify/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "machine", "verify", ""]
+						}
+					}
+				},
+				{
+					"name": "Machine Handshake",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"machine_id\": \"M-001B44112233\",\n    \"challenge\": \"random_challenge_string\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/machine/handshake/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "machine", "handshake", ""]
+						}
+					}
+				},
+				{
+					"name": "Inspector Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"access_token\", jsonData.access);",
+									"pm.environment.set(\"refresh_token\", jsonData.refresh);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"inspector001\",\n    \"password\": \"test123\",\n    \"machineId\": \"M-001B44112233\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/auth/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "auth", "login", ""]
+						}
+					}
+				},
+				{
+					"name": "Create Inspection",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.environment.set(\"inspection_id\", jsonData.inspection_id);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"inspection_id\": \"VIMS-LV-2025-TEST{{$timestamp}}\",\n    \"plate_number\": \"AA12345\",\n    \"chassis_number\": \"WBADT43452G123456\",\n    \"engine_number\": \"N47D20A12345\",\n    \"vehicle_type\": \"Passenger Car\",\n    \"vehicle_category\": \"LIGHT\",\n    \"brand_model\": \"Toyota Camry\",\n    \"fuel_type\": \"Petrol\",\n    \"kilometer_reading\": 125000,\n    \"licensed_capacity\": 5,\n    \"title_certificate\": \"TC-2024-001234\",\n    \"owner_name\": \"John Doe\",\n    \"center\": \"CTR-AA-001\",\n    \"form_id\": \"LV-FORM-2025\",\n    \"test_start_time\": \"{{$isoTimestamp}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", ""]
+						}
+					}
+				},
+				{
+					"name": "Submit Visual Checklist",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"items\": [\n        {\n            \"item_number\": 1,\n            \"item_name_en\": \"Registration Plate Validity\",\n            \"item_name_am\": \"የሰሌዳ ቁጥር ትክክለኛነት\",\n            \"zone_id\": \"zone1\",\n            \"zone_name_en\": \"Identification\",\n            \"points_possible\": 5,\n            \"status\": \"PASS\",\n            \"defect_type\": \"\",\n            \"is_critical\": false,\n            \"is_mandatory\": false\n        }\n    ],\n    \"notes\": \"All visual items passed.\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/submit_visual_checklist/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "submit_visual_checklist", ""]
+						}
+					}
+				},
+				{
+					"name": "Submit Machine Tests",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"tests\": [\n        {\n            \"machine_test_id\": \"MT-{{inspection_id}}-ALIGN-{{$timestamp}}\",\n            \"test_type\": \"alignment\",\n            \"test_name\": \"Wheel Alignment\",\n            \"test_data\": {\n                \"alignment_deviation\": 2.5,\n                \"suspension_left\": 55.2,\n                \"suspension_right\": 58.1\n            },\n            \"result\": \"PASS\",\n            \"pass_status\": true,\n            \"data_source\": \"RYME_SMRW\",\n            \"machine_serial\": \"RYME-AL-001\"\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/submit_machine_tests/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "submit_machine_tests", ""]
+						}
+					}
+				},
+				{
+					"name": "Upload Photo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"photo_id\": \"PHOTO-{{inspection_id}}-{{$timestamp}}\",\n    \"purpose\": \"registration\",\n    \"photo_url\": \"https://example.com/photos/{{inspection_id}}.jpg\",\n    \"latitude\": 9.012345,\n    \"longitude\": 38.765432,\n    \"gps_accuracy\": 10.5,\n    \"timestamp\": \"{{$isoTimestamp}}\",\n    \"file_size\": 1024000\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/upload_photo/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "upload_photo", ""]
+						}
+					}
+				},
+				{
+					"name": "Process Payment",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"payment_method\": \"cash\",\n    \"amount\": 250.00,\n    \"transaction_id\": \"TXN-{{inspection_id}}-{{$timestamp}}\",\n    \"reference\": \"CASH-REF-001\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/inspections/{{inspection_id}}/process_payment/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "inspections", "{{inspection_id}}", "process_payment", ""]
+						}
+					}
+				}
+			]
+		}
+	]
+}
+
+
