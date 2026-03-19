@@ -37,10 +37,14 @@ urlpatterns = [
     path('api/users/', include('apps.users.urls')),
 ]
 
+# Public verification (mobile app - no auth)
+from apps.inspections.views import VerifyByPlateView
+
 # Dashboard endpoints
 from apps.dashboard import DashboardOverviewView, CentersAttentionView, RevenueStatisticsView, UserScopeDebugView
 
 urlpatterns += [
+    path('api/verify/', VerifyByPlateView.as_view(), name='verify-by-plate'),
     path('api/dashboard/overview/', DashboardOverviewView.as_view(), name='dashboard-overview'),
     path('api/dashboard/centers-attention/', CentersAttentionView.as_view(), name='centers-attention'),
     path('api/dashboard/revenue/', RevenueStatisticsView.as_view(), name='dashboard-revenue'),

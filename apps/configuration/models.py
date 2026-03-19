@@ -15,6 +15,7 @@ class VisualChecklistConfig(models.Model):
     VEHICLE_CATEGORY_CHOICES = [
         ('LIGHT', 'Light Vehicle'),
         ('HEAVY', 'Heavy Vehicle'),
+        ('MOTOR', 'Motor / 3-Wheel'),
     ]
     
     STATUS_CHOICES = [
@@ -83,6 +84,7 @@ class TestStandard(models.Model):
     VEHICLE_CATEGORY_CHOICES = [
         ('LIGHT', 'Light Vehicle'),
         ('HEAVY', 'Heavy Vehicle'),
+        ('MOTOR', 'Motor / 3-Wheel'),
     ]
     
     TEST_TYPE_CHOICES = [

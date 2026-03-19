@@ -141,6 +141,9 @@ HEAVY_ZONES = [
     },
 ]
 
+# Motor / 3-wheel: same visual checklist as LIGHT (no machine tests)
+MOTOR_ZONES = LIGHT_ZONES
+
 
 def populate_checklist_config(user):
     """
@@ -190,11 +193,9 @@ def populate_checklist_config(user):
     
     light_total = created_count + updated_count
     
-    # Reset counters
+    # Populate HEAVY vehicle checklist
     created_count = 0
     updated_count = 0
-    
-    # Populate HEAVY vehicle checklist
     for zone in HEAVY_ZONES:
         for item in zone['items']:
             config_id = f"CFG-HEAVY-{zone['id']}-{item['id']:02d}"
@@ -233,6 +234,45 @@ def populate_checklist_config(user):
                 updated_count += 1
     
     heavy_total = created_count + updated_count
+
+    created_count = 0
+    updated_count = 0
+    for zone in MOTOR_ZONES:
+        for item in zone['items']:
+            config_id = f"CFG-MOTOR-{zone['id']}-{item['id']:02d}"
+            config, created = VisualChecklistConfig.objects.get_or_create(
+                config_id=config_id,
+                defaults={
+                    'vehicle_category': 'MOTOR',
+                    'zone_id': zone['id'],
+                    'zone_name_en': zone['titleEn'],
+                    'zone_name_am': zone['titleAm'],
+                    'item_number': item['id'],
+                    'item_name_en': item['en'],
+                    'item_name_am': item['am'],
+                    'points_possible': item['points'],
+                    'is_critical': item.get('critical', False),
+                    'is_mandatory': item.get('mandatory', False),
+                    'display_order': item['id'],
+                    'status': 'active',
+                    'created_by': user,
+                }
+            )
+            if created:
+                created_count += 1
+            else:
+                config.zone_name_en = zone['titleEn']
+                config.zone_name_am = zone['titleAm']
+                config.item_name_en = item['en']
+                config.item_name_am = item['am']
+                config.points_possible = item['points']
+                config.is_critical = item.get('critical', False)
+                config.is_mandatory = item.get('mandatory', False)
+                config.display_order = item['id']
+                config.status = 'active'
+                config.save()
+                updated_count += 1
+    motor_total = created_count + updated_count
     
     return {
         'light': {
@@ -241,10 +281,15 @@ def populate_checklist_config(user):
             'total': light_total
         },
         'heavy': {
-            'created': created_count,
+            'created': heavy_total - updated_count,
             'updated': updated_count,
             'total': heavy_total
         },
-        'total': light_total + heavy_total
+        'motor': {
+            'created': created_count,
+            'updated': updated_count,
+            'total': motor_total
+        },
+        'total': light_total + heavy_total + motor_total
     }
 

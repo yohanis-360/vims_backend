@@ -422,13 +422,31 @@ class LoginView(viewsets.ViewSet):
         serializer = LoginSerializer(data=request.data)
         
         if serializer.is_valid():
-            username = serializer.data['username']
-            password = request.data['password']
+            username = (serializer.data.get('username') or '').strip()
+            password = (request.data.get('password') or '').strip()
             machine_id = request.data.get('machineId', None)
+            
+            if not username or not password:
+                return Response(
+                    {'error': 'Username and password are required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             user = authenticate(username=username, password=password)
             
+            # Fallback: try case-insensitive username (e.g. "Admin" vs "admin")
             if user is None:
+                try:
+                    u = User.objects.get(username__iexact=username)
+                    if u.check_password(password):
+                        user = u
+                except (User.DoesNotExist, User.MultipleObjectsReturned):
+                    pass
+            
+            if user is None:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"Login failed for username='{username}' (user not found or wrong password)")
                 return Response(
                     {'error': 'Invalid credentials'},
                     status=status.HTTP_401_UNAUTHORIZED

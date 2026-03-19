@@ -338,10 +338,21 @@ class VisualChecklistBulkSerializer(serializers.Serializer):
         inspection.visual_points_total = sum(
             item['points_possible'] for item in items_data
         )
-        inspection.status = 'pending_machine'
-        inspection.save(update_fields=[
-            'visual_pass', 'visual_points_earned', 'visual_points_total', 'status'
-        ])
+        if getattr(inspection, 'vehicle_category', None) == 'MOTOR':
+            # Motor / 3-wheel: no machine tests — complete after visual only
+            inspection.overall_result = 'PASS' if visual_pass else 'FAIL'
+            inspection.status = 'completed'
+            inspection.completed_at = timezone.now()
+            inspection.machine_test_pass = True  # N/A for motor
+            inspection.save(update_fields=[
+                'visual_pass', 'visual_points_earned', 'visual_points_total',
+                'status', 'overall_result', 'completed_at', 'machine_test_pass'
+            ])
+        else:
+            inspection.status = 'pending_machine'
+            inspection.save(update_fields=[
+                'visual_pass', 'visual_points_earned', 'visual_points_total', 'status'
+            ])
         
         # Invalidate cache
         cache_key = f"inspection:{inspection.inspection_id}"

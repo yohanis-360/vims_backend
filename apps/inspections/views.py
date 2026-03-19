@@ -5,7 +5,8 @@ Optimized for high concurrency (100k+ concurrent users).
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.exceptions import ValidationError, PermissionDenied, NotFound
 from django.core.cache import cache
@@ -447,11 +448,6 @@ class InspectionViewSet(viewsets.ModelViewSet):
         date_range = request.query_params.get('range', 'today')
         cache_key = f"inspection_stats:{user.user_id}:{date_range}"
         
-        # Try cache (5 minutes)
-        cached_stats = cache.get(cache_key)
-        if cached_stats:
-            return Response(cached_stats)
-        
         # Get filtered queryset
         queryset = self.get_queryset()
         
@@ -514,9 +510,6 @@ class InspectionViewSet(viewsets.ModelViewSet):
         # Calculate pass rate
         if completed_count > 0:
             stats['pass_rate'] = round((pass_count / completed_count) * 100, 2)
-        
-        # Cache for 5 minutes
-        cache.set(cache_key, stats, timeout=300)
         
         return Response(stats)
     
@@ -831,3 +824,50 @@ class InspectionPhotoViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(purpose=purpose)
         
         return queryset
+
+
+class VerifyByPlateView(APIView):
+    """
+    Public verification by plate number for mobile/checker apps.
+    No authentication required. Returns latest completed inspection result and center.
+
+    GET /api/verify/?plate=AA-12345
+    """
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        plate = (request.query_params.get('plate') or '').strip()
+        if not plate:
+            return Response(
+                {'found': False, 'error': 'plate is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        inspection = (
+            Inspection.objects
+            .filter(status='completed', plate_number__iexact=plate)
+            .select_related('center')
+            .order_by('-completed_at')
+            .first()
+        )
+        if not inspection:
+            return Response({
+                'found': False,
+                'plate': plate,
+                'message': 'No completed inspection found for this plate.',
+            })
+        return Response({
+            'found': True,
+            'plate_number': inspection.plate_number,
+            'passed': (inspection.overall_result or '').upper() == 'PASS',
+            'overall_result': inspection.overall_result or None,
+            'inspection_id': inspection.inspection_id,
+            'completed_at': inspection.completed_at.isoformat() if inspection.completed_at else None,
+            'center': {
+                'center_id': inspection.center.center_id,
+                'name': inspection.center.name,
+                'code': inspection.center.code,
+                'region': inspection.center.region,
+                'zone': getattr(inspection.center, 'zone', None) or '',
+                'address': getattr(inspection.center, 'address', None) or '',
+            } if inspection.center else None,
+        })

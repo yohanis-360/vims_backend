@@ -25,6 +25,7 @@ class Inspection(models.Model):
     VEHICLE_CATEGORIES = [
         ('LIGHT', 'Light Vehicle'),
         ('HEAVY', 'Heavy Vehicle'),
+        ('MOTOR', 'Motor / 3-Wheel'),
     ]
     
     FUEL_TYPES = [
@@ -48,7 +49,7 @@ class Inspection(models.Model):
     vehicle_category = models.CharField(max_length=10, choices=VEHICLE_CATEGORIES, db_index=True)
     brand_model = models.CharField(max_length=100)
     fuel_type = models.CharField(max_length=20, choices=FUEL_TYPES)
-    kilometer_reading = models.IntegerField(validators=[MinValueValidator(0)])
+    kilometer_reading = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=True)
     licensed_capacity = models.IntegerField(validators=[MinValueValidator(1)])
     title_certificate = models.CharField(max_length=50)
     owner_name = models.CharField(max_length=255)
